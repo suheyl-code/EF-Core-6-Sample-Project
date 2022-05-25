@@ -8,6 +8,7 @@ using (PubContext context = new PubContext())
     context.Database.EnsureCreated();
 }
 
+var _context = new PubContext();
 SequenceOfSteps();
 
 /// Program Start point method
@@ -16,8 +17,32 @@ void SequenceOfSteps()
     //GetAuthors();
     //AddIAuthor();
     //GetAuthors();
+
     //AddAuthorWithBooks();
-    GetAuthorWithBooks();
+    //GetAuthorWithBooks();
+
+    QueryFilterByName("Julie");
+}
+
+void QueryFilterByName(string name)
+{
+    var authors = _context.Authors.Where(s => s.FirstName == name).ToList();
+
+    foreach (var item in authors)
+    {
+        Console.WriteLine($"{item.FirstName} {item.LastName} {BooksAny(item.Id)}");
+    }
+}
+
+string BooksAny(int id)
+{
+    string? msg = default;
+    var books = _context.Books.Where(b => b.AuthorId == id).ToList();
+    foreach (var item in books)
+    {
+        msg += $" {item.Title} {item.PublishDate} \t";
+    }
+    return msg;
 }
 
 void AddAuthorWithBooks()
@@ -26,31 +51,29 @@ void AddAuthorWithBooks()
     author.Books.Add(new Book { AuthorId = 2, Title = "Entity Framework 6 Basics", PublishDate = new DateTime(2019, 1, 12) });
     author.Books.Add(new Book { AuthorId = 2, Title = "Entity Framework 6 Advanced", PublishDate = new DateTime(2021, 3, 20) });
 
-    using var context = new PubContext();
-    context.Authors.Add(author);
-    context.SaveChanges();
+    _context.Authors.Add(author);
+    _context.SaveChanges();
 }
-
 
 void GetAuthorWithBooks()
 {
-    using var context = new PubContext();
-    var books = context.Books.ToList();
-    var author = context.Authors.ToList();
+
+    var books = _context.Books.ToList();
+    var author = _context.Authors.ToList();
     books.ForEach(x => Console.WriteLine($"{x.Author.FirstName} {x.Author.LastName}: {x.Title} --- {x.PublishDate}"));
 }
 
 void AddIAuthor()
 {
     var author = new Author() { FirstName = "Mehmet", LastName = "Babaoğlu" };
-    using var context = new PubContext();
-    context.Authors.Add(author);
-    context.SaveChanges();
+
+    _context.Authors.Add(author);
+    _context.SaveChanges();
 }
 
 void GetAuthors()
 {
-    using var context = new PubContext();
-    var authors = context.Authors.ToList();
+
+    var authors = _context.Authors.ToList();
     authors.ForEach(x => Console.WriteLine($"{x.FirstName} {x.LastName}"));
 }
